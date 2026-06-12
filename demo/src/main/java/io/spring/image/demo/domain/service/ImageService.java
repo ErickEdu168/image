@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ImageService {
-    @Transactional
+    //salva imagem
     Image save(Image image);
-
+    //retorna imagem
     Optional<Image> getById(String id);
 
     List<Image> search(ImageExtension extension, String query);
 }
+
+

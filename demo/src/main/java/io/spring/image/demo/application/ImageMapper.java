@@ -22,9 +22,6 @@ public class ImageMapper {
                 .file(file.getBytes()) //exception de trohws
                 .build();
 
-
-
-
     }
     public ImageDTO imageToDTO(Image image, String url){
         return ImageDTO.builder()

@@ -12,16 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Nodes.collect;
-
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/images")
 @Slf4j
 @RequiredArgsConstructor
 
@@ -32,10 +29,13 @@ public class ImagesController {
 
     @PostMapping
     public ResponseEntity save(
+
             @RequestParam("file") MultipartFile file,
             @RequestParam("name") String name,
             @RequestParam("tags") List<String> tags
+
     ) throws IOException {
+
         log.info("Recebendo tentativa de upload do arquivo: {}", file.getOriginalFilename());
         Image image = mapper.mapToImage(file, name, tags);
         Image savedImage = service.save(image);
@@ -63,22 +63,22 @@ public class ImagesController {
         return new ResponseEntity<>(image.getFile(), headers, HttpStatus.OK);
     }
 
+    //localhost:8080/images?extension=PNG&query=Nature
     @GetMapping
-    public ResponseEntity<ImageDTO> search(
+    public ResponseEntity<List<ImageDTO>> search(
             @RequestParam(value = "extension", required = false, defaultValue = "") String extension,
             @RequestParam(value = "query", required = false) String query) throws InterruptedException {
         Thread.sleep(3000L);
-        var result = service.search(ImageExtension.valueOf(extension), query);
+        //var result = service.search(ImageExtension.valueOf(extension), query);
+        var result = service.search(ImageExtension.ofName(extension), query);
 
         var images = result.stream().map(image -> {
             var url = buildImageURL(image);
             return mapper.imageToDTO(image, url.toString());
-        }).collect(Collectors.toCollection());
+        }).collect(Collectors.toList());
 
-        return ResponseEntity.ok((ImageDTO) images);
-
+        return ResponseEntity.ok(images);
     }
-
     //método que cria a url da imagem
     private URI buildImageURL(Image image) {
         String imagePath = "/"+image.getId();
@@ -88,4 +88,8 @@ public class ImagesController {
                 .build().toUri();
     }
 }
+
+
+
+
 
